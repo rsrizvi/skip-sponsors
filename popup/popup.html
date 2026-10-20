@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" href="popup.css" />
+  </head>
+  <body>
+    <header>
+      <h1>Skip Sponsors</h1>
+      <label class="switch">
+        <input type="checkbox" id="enabled" />
+        <span>Enabled</span>
+      </label>
+    </header>
+
+    <section>
+      <h2>Skip these segments</h2>
+      <div id="categories"></div>
+    </section>
+
+    <section class="stats">
+      <div><strong id="skipCount">0</strong> segments skipped</div>
+      <div><strong id="timeSaved">0m</strong> saved</div>
+    </section>
+
+    <footer>
+      Segment data from <a href="https://sponsor.ajay.app" target="_blank" rel="noreferrer">SponsorBlock</a>
+    </footer>
+
+    <script src="../src/defaults.js"></script>
+    <script src="popup.js"></script>
+  </body>
+</html>

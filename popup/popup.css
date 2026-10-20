@@ -1,0 +1,53 @@
+body {
+  width: 280px;
+  margin: 0;
+  padding: 12px 14px;
+  font: 13px system-ui, -apple-system, sans-serif;
+  color: #222;
+}
+
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+h1 {
+  font-size: 15px;
+  margin: 0;
+}
+
+h2 {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #666;
+  margin: 0 0 6px;
+}
+
+label {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  padding: 3px 0;
+  cursor: pointer;
+}
+
+.stats {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 12px;
+  padding-top: 10px;
+  border-top: 1px solid #eee;
+}
+
+footer {
+  margin-top: 10px;
+  font-size: 11px;
+  color: #888;
+}
+
+footer a {
+  color: inherit;
+}
