@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Skip Sponsors – Settings</title>
+    <link rel="stylesheet" href="options.css" />
+  </head>
+  <body>
+    <h1>Skip Sponsors</h1>
+
+    <section>
+      <h2>AI transcript analysis</h2>
+      <p>
+        When a video has no SponsorBlock data, the extension reads its chapters and transcript to find ads.
+        Without an API key it uses keyword matching, which only catches obvious ad reads. With a key, a
+        language model reads the transcript and works in any language. Results are cached per video, so
+        each video is analyzed once.
+      </p>
+      <p class="note">Transcripts of videos you watch are sent to the provider you choose.</p>
+
+      <label>
+        Provider
+        <select id="provider">
+          <option value="none">None (keyword matching only)</option>
+        </select>
+      </label>
+
+      <label>
+        API key
+        <input type="password" id="apiKey" autocomplete="off" spellcheck="false" />
+      </label>
+      <a id="keyLink" target="_blank" rel="noreferrer"></a>
+
+      <label>
+        Model
+        <input type="text" id="model" spellcheck="false" />
+      </label>
+
+      <div class="actions">
+        <button id="save">Save</button>
+        <span id="status"></span>
+      </div>
+    </section>
+
+    <section>
+      <h2>Cache</h2>
+      <p>Clear saved analysis results so videos get re-analyzed, for example after changing models.</p>
+      <div class="actions">
+        <button id="clearCache">Clear analysis cache</button>
+        <span id="cacheStatus"></span>
+      </div>
+    </section>
+
+    <script src="../src/defaults.js"></script>
+    <script src="options.js"></script>
+  </body>
+</html>

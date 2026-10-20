@@ -1,8 +1,17 @@
+importScripts("defaults.js", "analysis.js");
+
 const API_BASE = "https://sponsor.ajay.app/api/skipSegments/";
 
+const HANDLERS = {
+  getSegments: (msg) => fetchSegments(msg.videoId, msg.categories),
+  getCachedAnalysis: (msg) => getCachedAnalysis(msg.videoId),
+  analyzeVideo: (msg) => analyzeVideo(msg.info),
+};
+
 chrome.runtime.onMessage.addListener((msg, _sender, sendResponse) => {
-  if (msg?.type !== "getSegments") return false;
-  fetchSegments(msg.videoId, msg.categories)
+  const handler = HANDLERS[msg?.type];
+  if (!handler) return false;
+  handler(msg)
     .then((segments) => sendResponse({ segments }))
     .catch((err) => sendResponse({ error: String(err) }));
   return true;
@@ -31,6 +40,6 @@ async function fetchSegments(videoId, categories) {
     start: s.segment[0],
     end: s.segment[1],
     category: s.category,
-    uuid: s.UUID,
+    source: "SponsorBlock",
   }));
 }

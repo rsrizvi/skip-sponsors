@@ -23,6 +23,19 @@ async function init() {
     categoriesEl.appendChild(label);
   }
 
+  const detectEl = document.getElementById("detect");
+  detectEl.checked = settings.detect;
+  detectEl.addEventListener("change", () => chrome.storage.sync.set({ detect: detectEl.checked }));
+
+  const ai = await chrome.storage.local.get(SKIP_SPONSORS_AI_DEFAULTS);
+  const provider = SKIP_SPONSORS_PROVIDERS[ai.provider];
+  document.getElementById("detectMode").textContent =
+    provider && ai.apiKey ? `Using ${provider.label} to read transcripts` : "Keyword matching only (no AI key set)";
+  document.getElementById("openOptions").addEventListener("click", (e) => {
+    e.preventDefault();
+    chrome.runtime.openOptionsPage();
+  });
+
   const { skipCount = 0, timeSaved = 0 } = await chrome.storage.local.get(["skipCount", "timeSaved"]);
   document.getElementById("skipCount").textContent = skipCount;
   document.getElementById("timeSaved").textContent = formatDuration(timeSaved);

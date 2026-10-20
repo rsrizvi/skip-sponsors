@@ -29,15 +29,19 @@
     return !!video?.closest(".html5-video-player")?.classList.contains("ad-showing");
   }
 
+  function onVideoEvent() {
+    check();
+  }
+
   function attachVideo() {
     const el = findVideo();
     if (el === video) return;
     if (video) {
-      for (const ev of ["timeupdate", "seeked", "play", "ratechange"]) video.removeEventListener(ev, check);
+      for (const ev of ["timeupdate", "seeked", "play", "ratechange"]) video.removeEventListener(ev, onVideoEvent);
     }
     video = el;
     if (video) {
-      for (const ev of ["timeupdate", "seeked", "play", "ratechange"]) video.addEventListener(ev, check);
+      for (const ev of ["timeupdate", "seeked", "play", "ratechange"]) video.addEventListener(ev, onVideoEvent);
     }
   }
 
@@ -55,6 +59,27 @@
     return merged;
   }
 
+  async function request(message) {
+    const res = await chrome.runtime.sendMessage(message);
+    if (res?.error) throw new Error(res.error);
+    return res?.segments ?? null;
+  }
+
+  async function detectSegments(id) {
+    const cached = await request({ type: "getCachedAnalysis", videoId: id });
+    if (cached) return cached;
+    const info = await SkipSponsorsYouTube.getVideoInfo(id);
+    if (id !== videoId) return [];
+    return request({ type: "analyzeVideo", info });
+  }
+
+  // Segments can arrive after playback has already entered them, so the first check may skip mid-segment.
+  function applySegments(list) {
+    segments = mergeSegments(list.filter((s) => settings.categories.includes(s.category)));
+    if (segments.length) console.info("[Skip Sponsors] segments for", videoId, segments);
+    check({ ignoreEntryWindow: true });
+  }
+
   async function loadSegments() {
     const id = currentVideoId();
     attachVideo();
@@ -64,32 +89,36 @@
     clearTimeout(timer);
     if (!id || !settings.enabled) return;
 
+    let found = [];
     try {
-      const res = await chrome.runtime.sendMessage({
-        type: "getSegments",
-        videoId: id,
-        categories: settings.categories,
-      });
+      found = await request({ type: "getSegments", videoId: id, categories: settings.categories });
       if (id !== videoId) return;
-      if (res?.error) {
-        console.warn("[Skip Sponsors]", res.error);
-        return;
-      }
-      segments = mergeSegments(res?.segments ?? []);
-      check();
+      applySegments(found);
     } catch (err) {
-      console.warn("[Skip Sponsors]", err);
+      console.warn("[Skip Sponsors] SponsorBlock lookup failed:", err);
+    }
+
+    const wantsDetection = settings.categories.some((c) => SKIP_SPONSORS_DETECTABLE.includes(c));
+    if (!settings.detect || !wantsDetection || found.some((s) => s.category === "sponsor")) return;
+
+    try {
+      const detected = await detectSegments(id);
+      if (id !== videoId) return;
+      applySegments([...found, ...detected]);
+    } catch (err) {
+      console.warn("[Skip Sponsors] detection failed:", err);
     }
   }
 
-  function check() {
+  function check({ ignoreEntryWindow = false } = {}) {
     clearTimeout(timer);
     if (!settings.enabled || !video || !segments.length || isAdShowing()) return;
 
     const t = video.currentTime;
     for (const seg of segments) {
       if (seg.undone) continue;
-      if (t >= seg.start && t < seg.end - 0.05 && t - seg.start < ENTRY_WINDOW_SEC) {
+      const inside = t >= seg.start && t < seg.end - 0.05;
+      if (inside && (ignoreEntryWindow || t - seg.start < ENTRY_WINDOW_SEC)) {
         skip(seg);
         return;
       }
@@ -131,6 +160,12 @@
       ].join(";");
     }
     toast.textContent = `Skipped: ${categoryLabel(seg.category)}`;
+    if (seg.reason) toast.title = seg.reason;
+
+    const source = document.createElement("span");
+    source.textContent = `via ${seg.source}`;
+    source.style.cssText = "opacity:0.6;font-weight:400";
+    toast.appendChild(source);
 
     const undo = document.createElement("button");
     undo.textContent = "Undo";

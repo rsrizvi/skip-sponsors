@@ -1,17 +1,22 @@
 {
   "manifest_version": 3,
   "name": "Skip Sponsors",
-  "version": "0.1.0",
-  "description": "Automatically skips sponsored segments in YouTube videos using the SponsorBlock database.",
+  "version": "0.2.0",
+  "description": "Automatically skips sponsored segments in YouTube videos using SponsorBlock, chapter titles, and transcript analysis.",
   "permissions": ["storage"],
-  "host_permissions": ["https://sponsor.ajay.app/*"],
+  "host_permissions": [
+    "https://sponsor.ajay.app/*",
+    "https://generativelanguage.googleapis.com/*",
+    "https://api.openai.com/*",
+    "https://api.anthropic.com/*"
+  ],
   "background": {
     "service_worker": "src/background.js"
   },
   "content_scripts": [
     {
       "matches": ["https://www.youtube.com/*", "https://m.youtube.com/*"],
-      "js": ["src/defaults.js", "src/content.js"],
+      "js": ["src/defaults.js", "src/youtube.js", "src/content.js"],
       "run_at": "document_idle",
       "all_frames": true
     }
@@ -19,5 +24,9 @@
   "action": {
     "default_title": "Skip Sponsors",
     "default_popup": "popup/popup.html"
+  },
+  "options_ui": {
+    "page": "options/options.html",
+    "open_in_tab": true
   }
 }
