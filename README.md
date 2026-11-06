@@ -42,7 +42,9 @@ SponsorBlock doesn't cover) are sent to that provider. The API key is stored loc
 3. Click **Load unpacked** and select this folder.
 4. Open any YouTube video. Click the extension icon to choose which segment types to skip.
 5. Optional but recommended: click **AI settings** in the popup, pick a provider, and paste an API key.
-   Gemini's free tier is enough for personal use. The model name can be changed if the default is retired.
+   The default Gemini model, `gemini-3.5-flash-lite`, is free on Gemini's free tier (10 requests per
+   minute, 500 per day), which is plenty since each video is analyzed once. Note that Google may use
+   free-tier requests to improve its products. The model name can be changed if the default is retired.
 
 After editing code, click the reload icon on the extension's card and refresh the YouTube tab.
 

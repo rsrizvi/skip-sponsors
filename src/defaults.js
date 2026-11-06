@@ -19,7 +19,7 @@ const SKIP_SPONSORS_DEFAULTS = {
 };
 
 const SKIP_SPONSORS_PROVIDERS = {
-  gemini: { label: "Google Gemini", defaultModel: "gemini-2.5-flash", keyUrl: "https://aistudio.google.com/apikey" },
+  gemini: { label: "Google Gemini", defaultModel: "gemini-3.5-flash-lite", keyUrl: "https://aistudio.google.com/apikey" },
   openai: { label: "OpenAI", defaultModel: "gpt-4.1-mini", keyUrl: "https://platform.openai.com/api-keys" },
   anthropic: { label: "Anthropic", defaultModel: "claude-haiku-4-5", keyUrl: "https://console.anthropic.com/settings/keys" },
 };
