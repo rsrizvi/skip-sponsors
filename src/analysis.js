@@ -35,26 +35,35 @@ const AD_END =
 const HEURISTIC_MAX_SEC = 150;
 const HEURISTIC_MIN_SEC = 10;
 
+// Auto-captions split speech into ~2s cues, so a phrase like "today's | sponsor" can straddle two cues.
+// A match counts at cue i if it's inside cue i or spans into cue i+1, but not if it's wholly inside cue i+1.
+function matchesAt(re, cues, i) {
+  if (re.test(cues[i].text)) return true;
+  const next = cues[i + 1]?.text;
+  return next !== undefined && re.test(`${cues[i].text} ${next}`) && !re.test(next);
+}
+
 function detectWithHeuristics(cues) {
   const segments = [];
   for (let i = 0; i < cues.length; i++) {
-    if (!AD_START.test(cues[i].text)) continue;
+    if (!matchesAt(AD_START, cues, i)) continue;
     const start = cues[i].start;
     let lastCta = -1;
     let end = null;
     let j = i;
     for (; j < cues.length && cues[j].start - start <= HEURISTIC_MAX_SEC; j++) {
-      if (j > i && AD_END.test(cues[j].text)) {
+      if (j > i && matchesAt(AD_END, cues, j)) {
         end = cues[j].start;
         break;
       }
-      if (AD_CALL_TO_ACTION.test(cues[j].text)) lastCta = j;
+      if (matchesAt(AD_CALL_TO_ACTION, cues, j)) lastCta = j;
     }
     // A sponsor mention without any call to action is usually just a passing reference.
     if (lastCta === -1) continue;
     end ??= cues[lastCta + 1]?.start ?? cues[lastCta].start + 5;
     if (end - start >= HEURISTIC_MIN_SEC) {
-      segments.push({ start, end, category: "sponsor", source: "transcript", reason: cues[i].text });
+      const reason = `${cues[i].text} ${cues[i + 1]?.text ?? ""}`.trim();
+      segments.push({ start, end, category: "sponsor", source: "transcript", reason });
       while (i + 1 < cues.length && cues[i + 1].start < end) i++;
     }
   }
