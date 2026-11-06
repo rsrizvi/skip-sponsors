@@ -1,4 +1,4 @@
-const ANALYSIS_VERSION = 1;
+const ANALYSIS_VERSION = 2;
 const MIN_SEGMENT_SEC = 3;
 const MIN_CONFIDENCE = 0.6;
 const MAX_DESCRIPTION_CHARS = 3000;
@@ -91,7 +91,7 @@ function formatTranscript(cues) {
   const lines = [];
   let current = null;
   for (const cue of cues) {
-    if (current && cue.start - current.start < 5) {
+    if (current && cue.start - current.start < 2.5) {
       current.text += " " + cue.text;
     } else {
       current = { start: cue.start, text: cue.text };
