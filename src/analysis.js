@@ -247,6 +247,8 @@ async function analyzeVideo(info) {
   }
 
   const result = sanitize(segments, info.duration);
+  // Transcript downloads can be rate-limited by YouTube; leave the video uncached so it's retried later.
+  if (info.transcriptFailed) return result;
   await chrome.storage.local.set({
     [`analysis:${info.videoId}`]: { version: ANALYSIS_VERSION, mode, segments: result, createdAt: Date.now() },
   });

@@ -73,10 +73,12 @@ const SkipSponsorsYouTube = (() => {
     const track = pickCaptionTrack(player.captions?.playerCaptionsTracklistRenderer);
 
     let transcript = null;
+    let transcriptFailed = false;
     if (track) {
       try {
         transcript = await fetchTranscript(track);
       } catch (err) {
+        transcriptFailed = true;
         console.warn("[Skip Sponsors] transcript unavailable:", err);
       }
     }
@@ -90,6 +92,7 @@ const SkipSponsorsYouTube = (() => {
       chapters: parseChapters(description, duration),
       language: track?.languageCode ?? null,
       transcript,
+      transcriptFailed,
     };
   }
 
